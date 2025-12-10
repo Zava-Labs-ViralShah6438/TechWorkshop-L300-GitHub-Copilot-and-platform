@@ -1,0 +1,23 @@
+# AZD configuration for ZavaStorefront Dev Infrastructure
+name: zavastorefront-dev
+metadata:
+  template: bicep
+  description: Deploys ZavaStorefront dev infra to Azure in westus3
+services:
+  web:
+    project: ../src
+    language: dotnet
+    host: appservice
+    docker:
+      path: ../src/Dockerfile
+      context: ../src
+infra:
+  provider: bicep
+  path: ./infra/main.bicep
+workflow:
+  provision:
+    steps:
+      - azd provision
+  deploy:
+    steps:
+      - azd deploy
