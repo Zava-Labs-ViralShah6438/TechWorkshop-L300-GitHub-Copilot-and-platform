@@ -4,7 +4,7 @@
 Successfully upgraded from .NET 6.0 to .NET 8.0 LTS (Long-Term Support).
 
 ## Upgrade Date
-December 10, 2025
+December 10, 2024
 
 ## Version Information
 - **Previous Version**: .NET 6.0
