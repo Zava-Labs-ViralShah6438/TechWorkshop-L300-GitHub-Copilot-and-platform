@@ -2,6 +2,7 @@ using System.Text;
 using System.Text.Json;
 using Azure;
 using Azure.AI.Inference;
+using System.Threading;
 
 namespace ZavaStorefront.Services
 {
@@ -66,9 +67,18 @@ namespace ZavaStorefront.Services
             }
             catch (Exception ex)
             {
+                if (IsCriticalException(ex)) throw;
                 _logger.LogError(ex, "Unexpected error while communicating with Azure AI Foundry");
                 return "Error: An unexpected error occurred. Please try again.";
             }
+        }
+        private static bool IsCriticalException(Exception ex)
+        {
+            return ex is OutOfMemoryException
+                   || ex is StackOverflowException
+                   || ex is AccessViolationException
+                   || ex is AppDomainUnloadedException
+                   || ex is ThreadAbortException;
         }
     }
 }
