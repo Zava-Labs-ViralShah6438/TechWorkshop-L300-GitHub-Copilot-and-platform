@@ -2,6 +2,7 @@ using System.Text;
 using System.Text.Json;
 using Azure;
 using Azure.AI.Inference;
+using Azure.Identity;
 using System.Threading;
 
 namespace ZavaStorefront.Services
@@ -19,18 +20,20 @@ namespace ZavaStorefront.Services
             _logger = logger;
 
             var endpoint = _configuration["FoundrySettings:Phi4EndpointUrl"];
-            var apiKey = _configuration["FoundrySettings:ApiKey"];
             _deploymentName = _configuration["FoundrySettings:DeploymentName"] ?? "Phi-4";
 
-            if (string.IsNullOrEmpty(endpoint) || string.IsNullOrEmpty(apiKey))
+            if (string.IsNullOrEmpty(endpoint))
             {
-                throw new InvalidOperationException("Foundry settings are not configured properly");
+                throw new InvalidOperationException("Foundry endpoint URL is not configured");
             }
 
+            // Use DefaultAzureCredential for managed identity authentication
             _client = new ChatCompletionsClient(
                 new Uri(endpoint),
-                new AzureKeyCredential(apiKey)
+                new DefaultAzureCredential()
             );
+
+            _logger.LogInformation("ChatService initialized with managed identity authentication");
         }
 
         public async Task<string> SendMessageAsync(string userMessage)

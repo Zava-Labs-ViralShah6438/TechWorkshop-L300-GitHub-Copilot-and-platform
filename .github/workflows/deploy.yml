@@ -49,7 +49,6 @@ jobs:
           --resource-group ${{ vars.AZURE_RESOURCE_GROUP }} \
           --settings \
             FoundrySettings__Phi4EndpointUrl="${{ secrets.FOUNDRY_ENDPOINT_URL }}" \
-            FoundrySettings__ApiKey="${{ secrets.FOUNDRY_API_KEY }}" \
             FoundrySettings__DeploymentName="${{ secrets.FOUNDRY_DEPLOYMENT_NAME }}"
     
     - name: Deploy to Azure Web App

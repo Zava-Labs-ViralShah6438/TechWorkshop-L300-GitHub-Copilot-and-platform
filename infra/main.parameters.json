@@ -19,6 +19,9 @@
     },
     "imageName": {
       "value": "zavastorefront:latest"
+    },
+    "foundryName": {
+      "value": "shahviral6438-2744-resource"
     }
   }
 }
