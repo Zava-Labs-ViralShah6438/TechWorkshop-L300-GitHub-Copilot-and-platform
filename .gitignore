@@ -91,7 +91,7 @@ htmlcov/
 .ipynb_checkpoints
 
 # Docker
-**/Dockerfile*
+# **/Dockerfile*
 **/.dockerignore
 docker-compose.override.yml
 
@@ -148,3 +148,4 @@ desktop.ini
 # Keep track of local configs that may be useful to commit by exception
 !/.gitattributes
 !/.gitignore
+.azure
