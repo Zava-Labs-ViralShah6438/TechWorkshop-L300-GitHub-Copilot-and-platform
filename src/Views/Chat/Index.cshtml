@@ -1,0 +1,149 @@
+@{
+    ViewData["Title"] = "AI Chat";
+}
+
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><i class="bi bi-chat-dots"></i> AI Chat Assistant</h4>
+            </div>
+            <div class="card-body">
+                <div class="chat-container mb-3" style="height: 400px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 0.25rem; padding: 15px; background-color: #f8f9fa;">
+                    <div id="chatHistory">
+                        <div class="text-muted text-center">
+                            <p>Welcome! Start a conversation with the AI assistant.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <input type="text" id="messageInput" class="form-control" placeholder="Type your message here..." aria-label="Chat message">
+                    <button class="btn btn-primary" type="button" id="sendButton">
+                        <i class="bi bi-send"></i> Send
+                    </button>
+                </div>
+
+                <div id="errorMessage" class="alert alert-danger mt-3" style="display: none;" role="alert"></div>
+                <div id="loadingIndicator" class="text-center mt-3" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Thinking...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            const messageInput = $('#messageInput');
+            const sendButton = $('#sendButton');
+            const chatHistory = $('#chatHistory');
+            const errorMessage = $('#errorMessage');
+            const loadingIndicator = $('#loadingIndicator');
+
+            function addMessageToHistory(message, isUser) {
+                const messageClass = isUser ? 'bg-primary text-white' : 'bg-light';
+                const alignment = isUser ? 'text-end' : 'text-start';
+                const icon = isUser ? 'bi-person-fill' : 'bi-robot';
+                const label = isUser ? 'You' : 'AI Assistant';
+
+                const messageHtml = `
+                    <div class="${alignment} mb-3">
+                        <div class="d-inline-block ${messageClass} rounded p-3" style="max-width: 80%;">
+                            <strong><i class="bi ${icon}"></i> ${label}:</strong><br>
+                            ${escapeHtml(message)}
+                        </div>
+                        <div class="text-muted small mt-1">${new Date().toLocaleTimeString()}</div>
+                    </div>
+                `;
+
+                chatHistory.append(messageHtml);
+                scrollToBottom();
+            }
+
+            function scrollToBottom() {
+                const container = $('.chat-container');
+                container.scrollTop(container[0].scrollHeight);
+            }
+
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML.replace(/\n/g, '<br>');
+            }
+
+            function showError(message) {
+                errorMessage.text(message).show();
+                setTimeout(() => errorMessage.fadeOut(), 5000);
+            }
+
+            async function sendMessage() {
+                const message = messageInput.val().trim();
+
+                if (!message) {
+                    showError('Please enter a message');
+                    return;
+                }
+
+                // Clear the first welcome message if it exists
+                if (chatHistory.find('.text-muted.text-center').length) {
+                    chatHistory.empty();
+                }
+
+                // Add user message to history
+                addMessageToHistory(message, true);
+                messageInput.val('');
+                
+                // Disable input while processing
+                sendButton.prop('disabled', true);
+                messageInput.prop('disabled', true);
+                loadingIndicator.show();
+                errorMessage.hide();
+
+                try {
+                    const response = await fetch('@Url.Action("SendMessage", "Chat")', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ message: message })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        addMessageToHistory(data.message, false);
+                    } else {
+                        showError(data.message || 'Failed to get response from AI');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showError('An error occurred while sending the message. Please try again.');
+                } finally {
+                    sendButton.prop('disabled', false);
+                    messageInput.prop('disabled', false);
+                    loadingIndicator.hide();
+                    messageInput.focus();
+                }
+            }
+
+            // Send message on button click
+            sendButton.click(sendMessage);
+
+            // Send message on Enter key
+            messageInput.keypress(function(e) {
+                if (e.which === 13) { // Enter key
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+
+            // Focus on input on page load
+            messageInput.focus();
+        });
+    </script>
+}

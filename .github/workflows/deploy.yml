@@ -42,6 +42,16 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
     
+    - name: Configure App Settings
+      run: |
+        az webapp config appsettings set \
+          --name ${{ vars.AZURE_WEBAPP_NAME }} \
+          --resource-group ${{ vars.AZURE_RESOURCE_GROUP }} \
+          --settings \
+            FoundrySettings__Phi4EndpointUrl="${{ secrets.FOUNDRY_ENDPOINT_URL }}" \
+            FoundrySettings__ApiKey="${{ secrets.FOUNDRY_API_KEY }}" \
+            FoundrySettings__DeploymentName="${{ secrets.FOUNDRY_DEPLOYMENT_NAME }}"
+    
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
       with:
