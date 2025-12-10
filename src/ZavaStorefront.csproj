@@ -6,4 +6,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>bf1e70a6-aa66-499d-9e30-7d9490cd5682</UserSecretsId>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Azure.AI.Inference" Version="1.0.0-beta.2" />
+    <PackageReference Include="Azure.Identity" Version="1.13.1" />
+  </ItemGroup>
 </Project>
